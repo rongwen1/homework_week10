@@ -1,0 +1,61 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "GDP per capita in USD for each Country in 2020",
+    "data": {
+      "url": "js/ne_110m.json",
+      "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
+    },
+    "width": 800,
+    "height": 450,
+    "projection": {"type": "equalEarth"},
+    "layer": [
+      {
+        "data": {
+          "url": "js/oceans.topo.json",
+          "format": {"type": "topojson", "feature": "oceans"}
+        },
+        "mark": {"type": "geoshape", "fill": "skyblue"}
+      },
+      {
+        "transform": [
+          {
+            "calculate": "'Data is not available in ' + datum.properties.NAME",
+            "as": "note"
+          }
+        ],
+        "mark": {"type": "geoshape", "fill": "lightgray", "stroke": "white"},
+        "encoding": {"tooltip": {"field": "note"}}
+      },
+      {
+        "transform": [
+          {
+            "lookup": "properties.NAME",
+            "from": {
+              "data": {
+                "url": "data/GDP_2020.csv"
+              },
+              "key": "Country",
+              "fields": ["GDP_per_capita_USD"]
+            }
+          },
+          {"calculate": "datum.GDP_per_capita_USD", "as": "GDP_per_capita_USD"}
+        ],
+        "mark": {"type": "geoshape"},
+        "encoding": {
+          "color": {
+            "field": "GDP_per_capita_USD",
+            "title": "gdp in usd",
+            "type": "quantitative",
+            "scale": {"scheme": "reds",
+                      "type": "threshold",
+                      "domain": [5000, 20000, 50000],
+                      "range": ["#fdbe85", "#fd8d3c", "#e6550d", "#a63603"]}
+        },
+        "tooltip": [
+          {"field": "properties.NAME", "type": "nominal", "title": "Country"},
+          {"field": "GDP_per_capita_USD", "type": "quantitative", "title": "gdp in usd", "format": ".2f"}
+        ]
+      }
+    }
+  ]
+}

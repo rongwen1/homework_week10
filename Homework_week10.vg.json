@@ -1,0 +1,87 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+        "text": "GDP and Area on CO2 emission in 2020",
+        "fontSize": 15
+      },
+    "data": {
+        "url": "data/merged.csv"
+    },
+    "height": 350,
+    "width": 700,
+    "params": [
+        {
+          "name": "CO2_filter",
+          "value": 0,
+          "bind": {
+          "input": "range",
+          "min": 0,
+          "max": 30000,
+          "step": 1000,
+          "name": "CO2 emission filter in million"
+          }
+        }      
+      ],
+    "transform": [
+        {"filter": "datum.Year == 2020"},
+        {"filter": "datum.CO2_emission_tons/1000000 >= CO2_filter"},
+        {"calculate": "datum.CO2_emission_tons / 1000000", "as": "CO2_emission_million"}
+    ],
+    "encoding": {
+        "x": {
+            "field": "Area",
+            "type": "quantitative",
+            "title": "Area",
+            "scale": {"type": "sqrt", "domain": [1, 20000000]}
+        },
+        "y": {
+            "field": "GDP_per_capita_USD",
+            "type": "quantitative",
+            "title": "GDP per capita USD",
+            "scale": {"type": "sqrt", "domain": [1, 120000]}
+        }
+    },
+    "layer": [
+        {
+            "mark": "circle",
+            "encoding": {
+                "size": {
+                    "field": "CO2_emission_million",
+                    "type": "quantitative",
+                    "scale": {
+                        "type": "threshold",
+                        "domain": [100, 1000, 10000, 100000],
+                        "range": [10, 40, 100, 200, 700]
+                    },
+                    "title": "CO2 emission tons in million"
+                },
+                "tooltip": [
+                    {"field": "Country", "type": "nominal"},
+                    {"field": "CO2_emission_million", "type": "quantitative", "title": "CO2 emission tons in million", "format": ",.2f"},
+                    {"field": "Area", "type": "nominal", "title": "Area in km2", "format": ","},
+                    {"field": "GDP_per_capita_USD", "type": "nominal", "title": "GDP per capita USD", "format": ","}
+                ],
+                "opacity": { "value": 0.7}
+            }
+        },
+        {
+            "mark": {
+            "type": "text",
+            "align": "right",
+            "baseline": "middle",
+            "dx": -18,
+            "fontSize": 11.5,
+            "fontStyle": "italic"
+            },
+            "transform": [
+                {"filter": "datum.Country == 'China' || datum.Country == 'Russia' || datum.Country == 'United States of America'"}
+            ],
+            "encoding": {
+                "text": {"field": "Country", "type": "nominal"},
+                "color": {"value": "black"}
+            }
+        }
+    ]
+}
+
+    
